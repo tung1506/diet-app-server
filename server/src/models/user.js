@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'meals'
       });
+
+      User.belongsToMany(models.Group, {
+        through: 'UserGroup', // Junction table for the many-to-many relationship
+        foreignKey: 'user_id', // Foreign key in the junction table referencing User
+        otherKey: 'group_id',   // Foreign key in the junction table referencing Group
+        as: 'groups'            // Alias for the association
+      });
     }
   };
 
