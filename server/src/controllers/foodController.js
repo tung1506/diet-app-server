@@ -50,6 +50,23 @@ const FoodController = {
             res.status(400).json({ message: error.message });
         }
     },
+
+    async uploadImage(req, res) {
+        try {
+            const { foodId } = req.body; // Lấy foodId từ body
+            const file = req.file; // Lấy file từ request
+
+            // Gọi service để upload hình ảnh
+            const imageUrl = await foodService.uploadImage(foodId, file);
+
+            res.status(200).json({
+                message: 'Image uploaded successfully',
+                imageUrl: imageUrl,
+            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
 };
 
 module.exports = FoodController;

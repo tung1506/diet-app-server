@@ -1,4 +1,5 @@
 import db from '../models/index';
+const cloudinary = require('../config/cloudinaryConfig');
 
 class FoodService {
     async createFood(foodData, userId) {
@@ -84,6 +85,42 @@ class FoodService {
             };
         } catch (error) {
             throw new Error(`Error fetching food: ${error.message}`);
+        }
+    }
+
+
+    async uploadImage(foodId, file) {
+        try {
+            if (!file) {
+                throw new Error('No file uploaded.');
+            }
+
+            const result = await cloudinary.uploader.upload(file.path, {
+                public_id: `food/${foodId}`,
+                overwrite: true,
+                fetch_format: 'auto', // Tự động định dạng
+                quality: 'auto', // Tự động chất lượng
+                transformation: [
+                    {
+                        crop: 'fill', // Cắt hình ảnh để lấp đầy kích thước
+                        gravity: 'auto', // Tự động xác định trọng tâm của hình ảnh
+                        width: 500, // Chiều rộng mong muốn
+                        height: 500 // Chiều cao mong muốn
+                    }
+                ]
+            });
+
+            // Cập nhật URL hình ảnh vào cơ sở dữ liệu
+            await db.Food.update(
+                { image_url: result.secure_url }, // Cập nhật URL hình ảnh
+                { where: { id: foodId } } // Điều kiện cập nhật
+            );
+
+            return result.secure_url; // Trả về URL hình ảnh
+        } catch (error) {
+            // Xử lý lỗi
+            console.error('Error uploading image:', error);
+            throw new Error('Image upload failed.'); // Ném lỗi mới để thông báo cho caller
         }
     }
 }

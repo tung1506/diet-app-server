@@ -3,6 +3,8 @@
 const express = require('express');
 const FoodController = require('../controllers/foodController');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 /**
  * @swagger
@@ -166,5 +168,38 @@ router.post('/update/:foodId', FoodController.updateFood);
  *         description: Error retrieving food items
  */
 router.get('/', FoodController.getFood);
+
+/**
+ * @swagger
+ * /food/upload-image:
+ *   post:
+ *     tags:
+ *       - Food
+ *     summary: Upload image for Meal
+ *     description: Upload an image for a specific food item and overwrite the existing image.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               foodId:
+ *                 type: integer
+ *                 example: 1
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded successfully
+ *       400:
+ *         description: No file uploaded
+ *       500:
+ *         description: Error uploading image
+ */
+router.post('/upload-image', upload.single('image'), FoodController.uploadImage);
 
 module.exports = router;
