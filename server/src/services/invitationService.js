@@ -104,6 +104,11 @@ class InvitationService {
                 group_id: invitation.group_id // Use the group ID from the invitation
             });
 
+            await db.Group.increment('participants', {
+                by: 1, // Tăng số lượng người tham gia lên 1
+                where: { id: invitation.group_id } // Cập nhật cho nhóm tương ứng
+            });
+
             return invitation; // Return the updated invitation
         } catch (error) {
             throw new Error(`Error accepting invitation: ${error.message}`);

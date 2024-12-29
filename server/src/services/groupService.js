@@ -32,6 +32,7 @@ class GroupService {
 
             // Set the leader_id to the current user
             groupData.leader_id = userId;
+            groupData.participants = 1;
 
             // Create the new group
             const newGroup = await db.Group.create(groupData);
