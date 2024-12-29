@@ -152,4 +152,75 @@ router.post('/login', UserController.login);
  */
 router.post('/add-info', UserController.addUserInfo);
 
+/**
+ * @swagger
+ * /users/nutrition-stats:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get nutrition statistics for the user
+ *     description: Retrieve nutrition statistics for the user based on meals and foods within a date range. If no dates are provided, defaults to the last 7 days.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: fromDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for the statistics (YYYY-MM-DD). If not provided, defaults to 7 days ago.
+ *       - in: query
+ *         name: toDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for the statistics (YYYY-MM-DD). If not provided, defaults to today.
+ *     responses:
+ *       '200':
+ *         description: Successful response with nutrition statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalCalories:
+ *                   type: integer
+ *                   description: Total calories consumed
+ *                 totalProtein:
+ *                   type: integer
+ *                   description: Total protein consumed
+ *                 totalCarbohydrates:
+ *                   type: integer
+ *                   description: Total carbohydrates consumed
+ *                 totalFats:
+ *                   type: integer
+ *                   description: Total fats consumed
+ *                 totalVitamins:
+ *                   type: integer
+ *                   description: Total vitamins consumed
+ *                 totalMinerals:
+ *                   type: integer
+ *                   description: Total minerals consumed
+ *                 fromDate:
+ *                   type: string
+ *                   format: date
+ *                   description: Start date for the statistics
+ *                 toDate:
+ *                   type: string
+ *                   format: date
+ *                   description: End date for the statistics
+ *       '400':
+ *         description: Invalid date format or other errors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ */
+router.get('/nutrition-stats', UserController.getNutritionStats);
 module.exports = router;

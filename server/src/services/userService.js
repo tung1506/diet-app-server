@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 import db from '../models/index';
 const redisClient = require('./redisClient');
-
+const { Op } = require('sequelize');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 class UserService {
@@ -223,6 +223,89 @@ class UserService {
         }
 
         return validatedData;
+    }
+
+    async getNutritionStats(userId, fromDate, toDate) {
+        const meals = await db.Meal.findAll({
+            where: {
+                user_id: userId,
+                date: {
+                    [Op.between]: [fromDate, toDate]
+                }
+            },
+            include: [
+                {
+                    model: db.Food,
+                    as: 'foods',
+                    through: {
+                        model: db.MealFood,
+                        attributes: ['quantity']
+                    }
+                }
+            ]
+        });
+
+        let totalCalories = 0;
+        let totalProtein = 0;
+        let totalCarbohydrates = 0;
+        let totalFats = 0;
+        let totalVitamins = 0;
+        let totalMinerals = 0;
+
+        // Tạo một đối tượng để lưu trữ thông tin theo từng ngày
+        const dailyStats = {};
+
+        meals.forEach(meal => {
+            const mealDate = new Date(meal.date); // Chuyển đổi thành đối tượng Date
+            const formattedDate = mealDate.toISOString().split('T')[0]; // Lấy ngày theo định dạng YYYY-MM-DD
+
+            // Cập nhật tổng dinh dưỡng
+            totalCalories += meal.total_calories || 0;
+            totalProtein += meal.total_protein || 0;
+            totalCarbohydrates += meal.total_carbohydrates || 0;
+            totalFats += meal.total_fats || 0;
+            totalVitamins += meal.total_vitamins || 0;
+            totalMinerals += meal.total_minerals || 0;
+
+            // Nếu ngày chưa có trong dailyStats, khởi tạo
+            if (!dailyStats[formattedDate]) {
+                dailyStats[formattedDate] = {
+                    meals: [],
+                    totalCalories: 0,
+                    totalProtein: 0,
+                    totalCarbohydrates: 0,
+                    totalFats: 0,
+                    totalVitamins: 0,
+                    totalMinerals: 0,
+                };
+            }
+
+            // Thêm thông tin bữa ăn vào ngày tương ứng
+            dailyStats[formattedDate].meals.push({
+                name: meal.name,
+                // Chỉ giữ lại tên bữa ăn mà không thêm thông tin dinh dưỡng tổng quát
+            });
+
+            // Cập nhật tổng dinh dưỡng cho ngày
+            dailyStats[formattedDate].totalCalories += meal.total_calories || 0;
+            dailyStats[formattedDate].totalProtein += meal.total_protein || 0;
+            dailyStats[formattedDate].totalCarbohydrates += meal.total_carbohydrates || 0;
+            dailyStats[formattedDate].totalFats += meal.total_fats || 0;
+            dailyStats[formattedDate].totalVitamins += meal.total_vitamins || 0;
+            dailyStats[formattedDate].totalMinerals += meal.total_minerals || 0;
+        });
+
+        return {
+            totalCalories,
+            totalProtein,
+            totalCarbohydrates,
+            totalFats,
+            totalVitamins,
+            totalMinerals,
+            dailyStats, // Trả về thông tin dinh dưỡng theo từng ngày
+            fromDate,
+            toDate
+        };
     }
 }
 

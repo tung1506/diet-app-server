@@ -37,6 +37,29 @@ const UserController = {
                 message: error.message
             });
         }
+    },
+
+    async getNutritionStats(req, res) {
+        try {
+            const userId = req.userId; // Lấy userId từ middleware
+            let { fromDate, toDate } = req.query; // Sử dụng let để có thể gán lại giá trị
+
+            // Nếu không có từ ngày và đến ngày, thiết lập mặc định
+            if (!fromDate && !toDate) {
+                const today = new Date();
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(today.getDate() - 7);
+                fromDate = sevenDaysAgo.toISOString().split('T')[0]; // YYYY-MM-DD
+                toDate = today.toISOString().split('T')[0]; // YYYY-MM-DD
+            }
+
+            // Gọi service để lấy thống kê dinh dưỡng
+            const stats = await userService.getNutritionStats(userId, fromDate, toDate);
+
+            res.status(200).json(stats);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
     }
 };
 
