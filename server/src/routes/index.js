@@ -6,6 +6,7 @@ const mealRoutes = require('./meal.js');
 import groupRoutes from './group.js';
 import invitationRoutes from './invitation.js';
 import sharedMealRoutes from './sharedMeal.js';
+import searchRoutes from './search.js'
 
 let router = express.Router();
 
@@ -17,6 +18,7 @@ let initWebRoutes = (app) => {
     app.use("/groups", groupRoutes);
     app.use("/invitations", invitationRoutes);
     app.use("/shared-meals", sharedMealRoutes);
+    app.use("/search", searchRoutes);
 }
 
 module.exports = initWebRoutes;

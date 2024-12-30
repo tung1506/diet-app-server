@@ -359,6 +359,37 @@ class MealService {
             throw new Error(`Error deleting meal: ${error.message}`);
         }
     }
+
+    async searchMeals(query, userId, page = 1, limit = 10) {
+        try {
+            // Normalize the query by trimming and converting to lowercase
+            const normalizedQuery = query.trim().toLowerCase();
+
+            // Calculate the offset for pagination
+            const offset = (page - 1) * limit;
+
+            const meals = await db.Meal.findAndCountAll({
+                where: {
+                    user_id: userId, // Filter by user ID
+                    name: {
+                        [Op.like]: `%${normalizedQuery}%` // Use LIKE for partial matching
+                    }
+                },
+                limit: limit,
+                offset: offset,
+                order: [['name', 'ASC']] // Optional: order by meal name
+            });
+
+            return {
+                meals: meals.rows,
+                totalItems: meals.count,
+                totalPages: Math.ceil(meals.count / limit),
+                currentPage: page,
+            };
+        } catch (error) {
+            throw new Error(`Error searching for meals: ${error.message}`);
+        }
+    }
 }
 
 module.exports = new MealService();

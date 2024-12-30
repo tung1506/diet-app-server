@@ -1,5 +1,6 @@
 import db from '../models/index';
 const cloudinary = require('../config/cloudinaryConfig');
+const { Op } = require('sequelize');
 
 class FoodService {
     async createFood(foodData, userId) {
@@ -121,6 +122,37 @@ class FoodService {
             // Xử lý lỗi
             console.error('Error uploading image:', error);
             throw new Error('Image upload failed.'); // Ném lỗi mới để thông báo cho caller
+        }
+    }
+
+    async searchFood(query, userId, page = 1, limit = 10) {
+        try {
+            // Normalize the query by trimming and converting to lowercase
+            const normalizedQuery = query.trim().toLowerCase();
+
+            // Calculate the offset for pagination
+            const offset = (page - 1) * limit;
+
+            const foods = await db.Food.findAndCountAll({
+                where: {
+                    user_id: userId, // Filter by user ID
+                    name: {
+                        [Op.like]: `%${normalizedQuery}%` // Use LIKE for partial matching
+                    }
+                },
+                limit: limit,
+                offset: offset,
+                order: [['name', 'ASC']] // Optional: order by food name
+            });
+
+            return {
+                foods: foods.rows,
+                totalItems: foods.count,
+                totalPages: Math.ceil(foods.count / limit),
+                currentPage: page,
+            };
+        } catch (error) {
+            throw new Error(`Error searching for food: ${error.message}`);
         }
     }
 }
