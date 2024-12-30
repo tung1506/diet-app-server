@@ -79,6 +79,20 @@ const UserController = {
                 message: error.message
             });
         }
+    },
+
+    async logout(req, res) {
+        try {
+            const userId = req.userId; // Get userId from the authenticated request
+
+            // Optionally, you can invalidate the session in the database
+            await userService.invalidateSession(userId);
+
+            // Respond with a success message
+            res.status(200).json({ message: 'User  logged out successfully' });
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
 };
 

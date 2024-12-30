@@ -136,6 +136,80 @@ class ShoppingListService {
             throw new Error(`Error fetching shopping list by date: ${error.message}`);
         }
     }
+
+    // In shoppingListService.js
+    async getShoppingListStatistics(userId) {
+        // Retrieve all shopping list items for the user
+        const shoppingListItems = await db.ShoppingList.findAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: db.Food,
+                    as: 'food',
+                    attributes: ['id', 'name', 'user_id'] // Include food name, ID, and user_id
+                }
+            ]
+        });
+
+        // Initialize statistics object
+        const statistics = {};
+
+        // Calculate total bought and unbought quantities
+        shoppingListItems.forEach(item => {
+            const foodId = item.food_id;
+            const foodName = item.food.name;
+
+            // Check if the food belongs to the user
+            const foodBelongsToUser = item.food.user_id === userId; // Ensure the food belongs to the user
+
+            if (!foodBelongsToUser) {
+                return; // Skip this item if it doesn't belong to the user
+            }
+
+            if (!statistics[foodId]) {
+                statistics[foodId] = {
+                    id: foodId,
+                    foodName: foodName,
+                    total_bought: 0,
+                    total_unbought: 0,
+                    total_use_in_meal: 0 // Initialize total use in meals
+                };
+            }
+
+            if (item.is_bought) {
+                statistics[foodId].total_bought += item.quantity;
+            } else {
+                statistics[foodId].total_unbought += item.quantity;
+            }
+        });
+
+        // Optimize query to get total use in meals for each food_id
+        const mealFoodStats = await db.MealFood.findAll({
+            attributes: [
+                'food_id',
+                [db.sequelize.fn('SUM', db.sequelize.col('quantity')), 'total_quantity']
+            ],
+            where: {
+                food_id: Object.keys(statistics) // Only include food_ids that are in the statistics
+            },
+            group: ['food_id']
+        });
+
+        Object.values(statistics).forEach(statistic => {
+            // Ensure total_use_in_meal is defined
+            const totalUseInMeal = statistic.total_use_in_meal || 0;
+            console.log(totalUseInMeal)
+            if (statistic.total_bought >= totalUseInMeal) {
+                statistic.remaining = statistic.total_bought - totalUseInMeal;
+                statistic.need_to_buy = 0; // No need to buy if remaining is positive
+            } else {
+                statistic.need_to_buy = totalUseInMeal - statistic.total_bought + statistic.total_unbought;
+                statistic.remaining = 0; // No remaining if total_bought is less than total_use_in_meal
+            }
+        });
+
+        return statistics; // Return the statistics object
+    }
 }
 
 module.exports = new ShoppingListService();

@@ -192,6 +192,21 @@ const ShoppingListController = {
                 message: error.message
             });
         }
+    },
+
+    async getShoppingListStatistics(req, res) {
+        try {
+            const userId = req.userId; // Get userId from the authenticated request
+            const statistics = await shoppingListService.getShoppingListStatistics(userId); // Call the service method
+
+            // Return the statistics
+            res.status(200).json({
+                status: 'success',
+                statistics: Object.values(statistics) // Convert object to array for response
+            });
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
 };
 

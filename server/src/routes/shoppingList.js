@@ -376,4 +376,22 @@ router.get('/group/:groupId', shoppingListController.getSharedShoppingLists);
  *                   example: "Shared shopping list not found."
  */
 router.post('/group/mark-as-bought', shoppingListController.markAsBought);
+
+/**
+ * @swagger
+ * /shopping-list/statistics:
+ *   get:
+ *     tags:
+ *       - Shopping List
+ *     summary: Get statistics for the user's shopping list
+ *     description: Retrieve total bought and unbought quantities for each food item in the user's shopping list.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved shopping list statistics
+ *       400:
+ *         description: Error retrieving shopping list statistics
+ */
+router.get('/statistics', shoppingListController.getShoppingListStatistics);
 module.exports = router;

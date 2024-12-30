@@ -271,4 +271,22 @@ router.get('/nutrition-stats', UserController.getNutritionStats);
  *         description: User not found
  */
 router.get('/:userId', UserController.getUserById);
+
+/**
+ * @swagger
+ * /users/logout:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Log out a user
+ *     description: Allows a user to log out by invalidating their session token.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User logged out successfully
+ *       400:
+ *         description: Error logging out user
+ */
+router.post('/logout', UserController.logout);
 module.exports = router;

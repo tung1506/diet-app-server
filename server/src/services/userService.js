@@ -324,6 +324,20 @@ class UserService {
             throw new Error(`Failed to retrieve user: ${error.message}`);
         }
     }
+
+    async invalidateSession(userId) {
+        try {
+            const user = await db.User.findByPk(userId);
+            if (!user) {
+                throw new Error('User  not found');
+            }
+
+            // Invalidate the session by setting it to null
+            await user.update({ session: null });
+        } catch (error) {
+            throw new Error(`Error invalidating session: ${error.message}`);
+        }
+    }
 }
 
 module.exports = new UserService();
