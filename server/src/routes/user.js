@@ -223,4 +223,52 @@ router.post('/add-info', UserController.addUserInfo);
  *                   description: Error message
  */
 router.get('/nutrition-stats', UserController.getNutritionStats);
+
+/**
+ * @swagger
+ * /users/{userId}:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get user information by userId
+ *     description: Retrieve user information for a specific user based on userId
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     username:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     phone:
+ *                       type: string
+ *                     age:
+ *                       type: integer
+ *                     weight:
+ *                       type: number
+ *                     height:
+ *                       type: number
+ *       404:
+ *         description: User not found
+ */
+router.get('/:userId', UserController.getUserById);
 module.exports = router;

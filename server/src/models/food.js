@@ -58,6 +58,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            serving_size: { // New field for serving size
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         },
         {
             sequelize,

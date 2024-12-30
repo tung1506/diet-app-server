@@ -51,6 +51,9 @@ const upload = multer({ dest: 'uploads/' });
  *               minerals:
  *                 type: number
  *                 example: 5
+ *               serving_size:
+ *                 type: string
+ *                 example: 1 cup
  *     responses:
  *       201:
  *         description: Food item created successfully
@@ -129,6 +132,9 @@ router.delete('/delete/:foodId', FoodController.deleteFood);
  *               minerals:
  *                 type: number
  *                 example: 5
+ *               serving_size:
+ *                 type: string
+ *                 example: 1 cup
  *     responses:
  *       200:
  *         description: Food item updated successfully

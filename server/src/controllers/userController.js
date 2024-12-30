@@ -60,6 +60,25 @@ const UserController = {
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
+    },
+
+    async getUserById(req, res) {
+        try {
+            const { userId } = req.params; // Get userId from request parameters
+
+            // Call the service to get user information
+            const user = await userService.getUserById(userId);
+
+            return res.status(200).json({
+                status: 'success',
+                user: user
+            });
+        } catch (error) {
+            return res.status(404).json({
+                status: 'error',
+                message: error.message
+            });
+        }
     }
 };
 

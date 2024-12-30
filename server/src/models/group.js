@@ -16,6 +16,13 @@ module.exports = (sequelize, DataTypes) => {
                 as: 'leader' // Alias for the association
             });
         }
+
+        async hasUser(userId) {
+            const user = await this.getUsers({
+                where: { id: userId }
+            });
+            return user.length > 0; // Returns true if the user is found
+        }
     }
 
     Group.init(

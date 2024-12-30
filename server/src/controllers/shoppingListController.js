@@ -1,4 +1,5 @@
 const shoppingListService = require('../services/shoppingListService');
+import SharedShoppingListService from '../services/sharedShoppingListService';
 
 const ShoppingListController = {
     // Create a new shopping list entry
@@ -118,6 +119,78 @@ const ShoppingListController = {
             });
         } catch (error) {
             res.status(400).json({ message: error.message });
+        }
+    },
+
+    async shareShoppingList(req, res) {
+        try {
+            const { shoppingListId, groupId } = req.body;
+
+            // Validate input
+            if (!shoppingListId || !groupId) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'shoppingListId and groupId are required.'
+                });
+            }
+
+            // Call the service to share the shopping list
+            const sharedList = await SharedShoppingListService.shareShoppingList(shoppingListId, groupId);
+
+            return res.status(201).json({
+                status: 'success',
+                message: 'Shopping list shared successfully.',
+                sharedListId: sharedList.id
+            });
+        } catch (error) {
+            return res.status(500).json({
+                status: 'error',
+                message: `Failed to share shopping list. Reason: ${error.message}`
+            });
+        }
+    },
+
+    async getSharedShoppingLists(req, res) {
+        try {
+            const { groupId } = req.params; // Get groupId from request parameters
+
+            // Call the service to get shared shopping lists
+            const sharedLists = await SharedShoppingListService.getSharedShoppingListsByGroupId(groupId);
+
+            return res.status(200).json({
+                status: 'success',
+                sharedLists: sharedLists
+            });
+        } catch (error) {
+            return res.status(400).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    },
+
+    async markAsBought(req, res) {
+        try {
+            const { sharedShoppingListId } = req.body;
+            const userId = req.userId; // Get userId from the authenticated request
+
+            // Validate input
+            if (!sharedShoppingListId) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'sharedShoppingListId is required.'
+                });
+            }
+
+            // Call the service to mark the shopping list as bought
+            const result = await SharedShoppingListService.markAsBought(sharedShoppingListId, userId);
+
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(403).json({
+                status: 'error',
+                message: error.message
+            });
         }
     }
 };

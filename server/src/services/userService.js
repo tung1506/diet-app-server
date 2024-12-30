@@ -307,6 +307,23 @@ class UserService {
             toDate
         };
     }
+
+    async getUserById(userId) {
+        try {
+            // Find the user by ID
+            const user = await db.User.findByPk(userId, {
+                attributes: ['id', 'username', 'name', 'phone', 'age', 'weight', 'height']
+            });
+
+            if (!user) {
+                throw new Error('User  not found.');
+            }
+
+            return user;
+        } catch (error) {
+            throw new Error(`Failed to retrieve user: ${error.message}`);
+        }
+    }
 }
 
 module.exports = new UserService();

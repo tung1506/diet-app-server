@@ -225,4 +225,155 @@ router.get('/', shoppingListController.getShoppingList);
  */
 router.get('/by-date', shoppingListController.getShoppingListByDate);
 
+/**
+ * @swagger
+ * /shopping-list/share:
+ *   post:
+ *     tags:
+ *       - Shopping List
+ *     summary: Share a shopping list with a group
+ *     description: Allows a user to share a shopping list with a specified group
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               shoppingListId:
+ *                 type: integer
+ *                 example: 1
+ *               groupId:
+ *                 type: integer
+ *                 example: 2
+ *     responses:
+ *       201:
+ *         description: Shopping list shared successfully
+ *       400:
+ *         description: Error sharing shopping list
+ */
+router.post('/share', shoppingListController.shareShoppingList);
+
+/**
+ * @swagger
+ * /shopping-list/group/{groupId}:
+ *   get:
+ *     tags:
+ *       - Shopping List
+ *     summary: Get all shared shopping lists in a group
+ *     description: Retrieve all shared shopping lists associated with a specified group
+ *     parameters:
+ *       - in: path
+ *         name: groupId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the group to retrieve shared shopping lists for
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved shared shopping lists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 sharedLists:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       user_id:
+ *                         type: integer
+ *                       food_id:
+ *                         type: integer
+ *                       quantity:
+ *                         type: number
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                       is_bought:
+ *                         type: boolean
+ *                       note:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *       400:
+ *         description: Error retrieving shared shopping lists
+ */
+router.get('/group/:groupId', shoppingListController.getSharedShoppingLists);
+
+/**
+ * @swagger
+ * /shopping-list/group/mark-as-bought:
+ *   post:
+ *     tags:
+ *       - Shopping List
+ *     summary: Mark a shared shopping list as bought
+ *     description: Allows a user in the group to mark a shared shopping list as bought and updates the bought_by_user_id field.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sharedShoppingListId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: The ID of the shared shopping list to be marked as bought.
+ *     responses:
+ *       200:
+ *         description: Successfully marked the shared shopping list as bought
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Shared shopping list marked as bought successfully."
+ *       400:
+ *         description: Error marking the shared shopping list as bought
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "You do not have permission to mark this shopping list as bought."
+ *       404:
+ *         description: Shared shopping list not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Shared shopping list not found."
+ */
+router.post('/group/mark-as-bought', shoppingListController.markAsBought);
 module.exports = router;
